@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Use a strong + fast Groq model (Llama 3.3 70B is excellent in 2026)
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0.75,
@@ -18,8 +17,8 @@ search_tool = DuckDuckGoSearchRun()
 # === AGENTS ===
 researcher = Agent(
     role="Senior AI Research Analyst",
-    goal="Find the newest breakthroughs in recursive self-improvement, agent memory, and autonomous coding",
-    backstory="You are obsessed with turning small toy projects into real seeds of the dingularity.",
+    goal="Find the newest breakthroughs in recursive self-improvement",
+    backstory="You hunt for ideas that push Echo closer to the dingularity.",
     llm=llm,
     tools=[search_tool],
     verbose=True
@@ -27,15 +26,15 @@ researcher = Agent(
 
 coder = Agent(
     role="Elite Python Architect",
-    goal="Write clean, safe code improvements to the Echo swarm itself",
-    backstory="You output improvements as unified diffs that can be reviewed and applied.",
+    goal="Propose safe code improvements to Echo itself",
+    backstory="You output clean unified diffs.",
     llm=llm,
     verbose=True
 )
 
 evaluator = Agent(
     role="Ruthless Performance Judge",
-    goal="Score every proposed change honestly on usefulness, safety, and dingularity potential",
+    goal="Score changes honestly on usefulness, safety, and dingularity potential",
     backstory="You are brutally honest but constructive.",
     llm=llm,
     verbose=True
@@ -43,54 +42,70 @@ evaluator = Agent(
 
 improver = Agent(
     role="Recursive Self-Improvement Director",
-    goal="Decide what gets kept and set the next goal for the swarm",
-    backstory="You are building the future one loop at a time.",
+    goal="Decide what gets kept and set the next goal",
+    backstory="You are steering us toward the dingularity.",
+    llm=llm,
+    verbose=True
+)
+
+# NEW: HyperReflector (inspired by HyperAgents + Trajectory-Informed Memory papers)
+hyperreflector = Agent(
+    role="HyperReflector / Trajectory Memory Curator",
+    goal="Analyze the entire loop trajectory and extract meta-lessons that improve how Echo improves itself",
+    backstory="You are the meta-agent. You treat the whole swarm as editable code and generate synthetic lessons that make future loops smarter.",
     llm=llm,
     verbose=True
 )
 
 # === TASKS ===
 research_task = Task(
-    description="Search for the 3 most recent and interesting breakthroughs in self-improving agents, memory systems, or recursive AI from the last 45 days.",
-    expected_output="Bullet list of 3 breakthroughs with short explanation and links if possible",
+    description="Search for the 3 most recent breakthroughs (last 60 days) in self-improving agents or recursive systems.",
+    expected_output="3 bullet points with explanation and links",
     agent=researcher
 )
 
 code_task = Task(
-    description="Based on the research, propose specific improvements to echo_crew.py or run_echo.sh as a unified diff.",
-    expected_output="A valid unified diff (```diff ... ```) that can be reviewed",
+    description="Based on research, propose 1-2 concrete improvements to echo_crew.py as a unified diff.",
+    expected_output="```diff ... ``` block",
     agent=coder
 )
 
 eval_task = Task(
-    description="Score the proposed code changes from 1-100 on usefulness, safety, simplicity, and dingularity potential. Explain your score.",
-    expected_output="Score + detailed reasoning",
+    description="Score the proposed changes 1-100. Explain strengths and risks.",
+    expected_output="Overall score + reasoning",
     agent=evaluator
 )
 
 improve_task = Task(
-    description="Synthesize everything and give final verdict + clear next goal for the next loop.",
-    expected_output="Final decision + next 24-hour goal for Echo",
+    description="Give final verdict on changes and set next 24h goal.",
+    expected_output="Clear decision + next goal",
     agent=improver
+)
+
+# NEW TASK
+reflect_task = Task(
+    description="Review the FULL conversation trajectory from this loop. Extract 3-5 actionable meta-lessons (prompt tweaks, role changes, new habits, or architectural ideas) that will make future Echo loops more effective. Store them as persistent knowledge.",
+    expected_output="Bullet list of meta-lessons with exact prompt suggestions where possible",
+    agent=hyperreflector
 )
 
 # === CREW ===
 echo_crew = Crew(
-    agents=[researcher, coder, evaluator, improver],
-    tasks=[research_task, code_task, eval_task, improve_task],
+    agents=[researcher, coder, evaluator, improver, hyperreflector],
+    tasks=[research_task, code_task, eval_task, improve_task, reflect_task],
     process=Process.sequential,
-    memory=True,
+    memory=True,          # Chroma will now hold trajectory lessons too
     verbose=2
 )
 
 def run_echo():
-    print("🔄 === ECHO SELF-IMPROVEMENT LOOP STARTED ===\n")
+    print("🔄 Starting Echo Self-Improvement Loop v0.2 (HyperReflector enabled)...\n")
     result = echo_crew.kickoff()
-    print("\n" + "="*60)
-    print("ECHO OUTPUT:")
+    print("\n" + "="*80)
+    print("ECHO v0.2 OUTPUT:")
     print(result)
-    print("="*60)
-    return result
+    print("="*80)
+    print("\n💡 HyperReflector just added new meta-lessons to memory!")
 
 if __name__ == "__main__":
     run_echo()
