@@ -1,31 +1,14 @@
 #!/bin/bash
-# Echo Swarm — one-click setup for weak Linux daemon + Groq free tier
+echo "Setting up Echo Swarm environment..."
 
-set -e
-
-echo "🚀 Setting up Echo Swarm..."
-
-# Create virtual env
 python3 -m venv venv
 source venv/bin/activate
-
-# Upgrade pip
 pip install --upgrade pip
-
-# Install everything
 pip install crewai crewai-tools langchain-groq chromadb duckduckgo-search
 
-echo "✅ Dependencies installed."
-
-# Create .env
 if [ ! -f .env ]; then
-  cat > .env << EOT
-GROQ_API_KEY=your_groq_key_here
-# Optional: add SERPER_API_KEY=... later for better search
-EOT
-  echo "✅ .env created — edit it with your Groq key!"
+  echo "GROQ_API_KEY=your_key_here" > .env
+  echo "Created .env file. Please edit it with your Groq API key."
 fi
 
-echo ""
-echo "🎉 Setup complete!"
-echo "Next: edit .env with your Groq API key, then run: ./run_echo.sh"
+echo "Setup complete. Run ./run_echo.sh to start."
