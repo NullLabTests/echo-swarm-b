@@ -8,6 +8,9 @@ This project runs a persistent swarm of agents that research recent advances in 
 ### Current Version
 v0.2 - HyperReflector enabled
 
+### Example First Loop Output
+![Echo Swarm v0.2 Simulation](https://i.postimg.cc/B89ZNqWm/image-(31).jpg)
+
 ### Setup
 1. Run `./setup.sh`
 2. Add your Groq API key to `.env`
